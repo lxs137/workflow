@@ -1,6 +1,7 @@
 var StateMachine = require('javascript-state-machine');
 
 var FSM = require('../Base/FSM');
+var Role = require('../user/User').Role;
 var BidModel = require('./Bid').BidModel;
 var BidStatus = require('./Bid').BidStatus;
 var BidTransition = require('./Bid').BidTransition;
@@ -11,27 +12,42 @@ var BidFSM = FSM.createFSM({
         { 
             name: BidTransition.keys[BidTransition.edit], 
             from: BidStatus.keys[BidStatus.unreview], 
-            to: BidStatus.keys[BidStatus.editing]  
+            to: BidStatus.keys[BidStatus.editing],
+            role: [
+                Role.keys[Role.owner]
+            ]
         },
         { 
             name: BidTransition.keys[BidTransition.save], 
             from: BidStatus.keys[BidStatus.editing],
-            to: BidStatus.keys[BidStatus.unreview]  
+            to: BidStatus.keys[BidStatus.unreview],
+            role: [
+                Role.keys[Role.owner]
+            ]  
         },
         {
             name: BidTransition.keys[BidTransition.yes],
             from: BidStatus.keys[BidStatus.unreview],
-            to: BidStatus.keys[BidStatus.agree]
+            to: BidStatus.keys[BidStatus.agree],
+            role: [
+                Role.keys[Role.salerassistant]
+            ]
         },
         {
             name: BidTransition.keys[BidTransition.no],
             from: BidStatus.keys[BidStatus.unreview],
-            to: BidStatus.keys[BidStatus.deny]
+            to: BidStatus.keys[BidStatus.deny],
+            role: [
+                Role.keys[Role.salerassistant]
+            ]
         },
         {
             name: BidTransition.keys[BidTransition.modify],
             from: BidStatus.keys[BidStatus.deny],
-            to: BidStatus.keys[BidStatus.editing]
+            to: BidStatus.keys[BidStatus.editing],
+            role: [
+                Role.keys[Role.owner]
+            ]
         }
     ],
     data: (_data) => {

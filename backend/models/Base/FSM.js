@@ -5,18 +5,30 @@ module.exports.createFSM = function(options) {
   let transitions = options.transitions;
   let data = options.data;
   let methods = options.methods;
+  let new_transitions = [];
+  transitions.forEach((item) => {
+    new_transitions.push({
+      name: item.name,
+      from: item.from,
+      to: item.to,
+      role: item.role || 'owner'
+    });
+  });
   let new_data = (_data) => {
     let res = {}; 
     if(data)
       res= data(_data);
-    res["actions"] = transitions;
+    res["actions"] = new_transitions;
     return res;
   };
   let nextStatus = function() {
     let res = [];
-    transitions.forEach((item) => {
+    new_transitions.forEach((item) => {
       if(item.from === this.state)
-        res.push(item.to);
+        res.push({
+          to: item.to,
+          role: item.role
+        });
     });
     return res;
   };
