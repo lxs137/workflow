@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var Enum = require('../Base/Enum');
 
 var BidStatus = Enum("unreview", "editing", "agree", "deny");
-var BidTransition = Enum("edit", "save", "yes", "no", "modify");
+var BidTransition = Enum("edit", "save", "cancel", "yes", "no", "modify");
 
 var BidSchema = new mongoose.Schema({
     _status: {
@@ -19,7 +19,9 @@ var BidSchema = new mongoose.Schema({
     },
     client: String,
     result: String,
-    deny_reason: String
+    deny_reason: String,
+    yes_time: Date,
+    deny_time: Date
 });
 
 module.exports.BidStatus = BidStatus;

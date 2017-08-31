@@ -26,6 +26,14 @@ var BidFSM = FSM.createFSM({
             ]  
         },
         {
+            name: BidTransition.keys[BidTransition.cancel],
+            from: BidStatus.keys[BidStatus.editing],
+            to: BidStatus.keys[BidStatus.unreview],
+            role: [
+                Role.keys[Role.owner]
+            ]
+        },
+        {
             name: BidTransition.keys[BidTransition.yes],
             from: BidStatus.keys[BidStatus.unreview],
             to: BidStatus.keys[BidStatus.agree],
@@ -52,6 +60,33 @@ var BidFSM = FSM.createFSM({
     ],
     data: (_data) => {
         return { data: _data };
+    },
+    methods: {
+        onEdit: (cycle, _id, obj) => {
+            return BidModel.findByIdAndUpdate(_id, { _status: cycle.to }).exec();
+        },
+        onCancel: (cycle, _id, obj) => {
+            return BidModel.findByIdAndUpdate(_id, { _status: cycle.to }).exec();
+        },
+        onSave: (cycle, _id, bid) => {
+            bid["_status"] = cycle.to;
+            return BidModel.findByIdAndUpdate(_id, bid).exec();
+        },
+        onYes: (cycle, _id, obj) => {
+            return BidModel.findByIdAndUpdate(_id, {
+                 _status: cycle.to,
+                result: obj.result,
+                yes_time: new Date() }).exec();
+        },
+        onNo: (cycle, _id, obj) => {
+            return BidModel.findByIdAndUpdate(_id, {
+                _status: cycle.to,
+               deny_reason: obj.reason,
+               yes_time: new Date() }).exec();
+        },
+        onModify: (cycle, _id, obj) => {
+            return BidModel.findByIdAndUpdate(_id, { _status: cycle.to }).exec();            
+        }
     }
 });
 
@@ -63,8 +98,7 @@ module.exports.Instance = function(data) {
                 let fsm = new BidFSM(bid.$toObject());
                 if (bid._status && fsm.state != bid._status)
                     fsm.goto(bid._satus);
-                fsm.data.nextActions = fsm.transitions();
-                fsm.data.nextStatus = fsm.nextStatus();
+                fsm.data.nextAction = fsm.nextAction();
                 return Promise.resolve(fsm);
             }, (error) => {
                 return Promise.reject(err);
@@ -78,8 +112,7 @@ module.exports.Instance = function(data) {
             }
             else {
                 let fsm = new BidFSM(bid.$toObject());
-                fsm.data.nextActions = fsm.transitions();
-                fsm.data.nextStatus = fsm.nextStatus();
+                fsm.data.nextAction = fsm.nextAction();
                 return Promise.resolve(fsm);
             }
         });

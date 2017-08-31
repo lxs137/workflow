@@ -27,11 +27,12 @@ module.exports.createFSM = function(options) {
     res["actions"] = new_transitions;
     return res;
   };
-  let nextStatus = function() {
+  let nextAction = function() {
     let res = [];
     new_transitions.forEach((item) => {
       if(item.from === this.state)
         res.push({
+          name: item.name,
           to: item.to,
           role: item.role
         });
@@ -39,10 +40,10 @@ module.exports.createFSM = function(options) {
     return res;
   };
   if(methods)
-    methods["nextStatus"] = nextStatus;
+    methods["nextAction"] = nextAction;
   else
     methods = {
-      nextStatus: nextStatus
+      nextAction: nextAction
     };
   return StateMachine.factory({
     init: init,
