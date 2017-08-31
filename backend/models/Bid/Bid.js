@@ -8,9 +8,11 @@ var BidSchema = new mongoose.Schema({
     _status: {
         type: String,
         enum: BidStatus.all,
-        require: true
+        require: true,
+        default: BidStatus.keys[BidStatus.unreview]
     },
     name: String,
+    saler: String,
     create_time: {
         type: Date,
         default: Date.now

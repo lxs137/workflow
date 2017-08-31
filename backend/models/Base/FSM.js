@@ -14,6 +14,12 @@ module.exports.createFSM = function(options) {
       role: item.role || 'owner'
     });
   });
+  transitions.push({ 
+    name: 'goto', 
+    from: '*', 
+    to: function(s) { return s; },
+    role: [] 
+  });
   let new_data = (_data) => {
     let res = {}; 
     if(data)

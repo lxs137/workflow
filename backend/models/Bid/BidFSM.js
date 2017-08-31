@@ -57,16 +57,19 @@ var BidFSM = FSM.createFSM({
 
 module.exports.Instance = function(data) {
     if(data._id) {
-        return BidModel.findById(data._id, function(err, bid) {
-            if(err) {
-                return Promise.reject(err);
-            } else {
+        return BidModel.findById(data._id).exec().then(
+            (bid) => {
                 // Set FSM to status
-                let fsm = new BidFSM(data);
-                fsm.goto(data._satus);
+                let fsm = new BidFSM(bid.$toObject());
+                if (bid._status && fsm.state != bid._status)
+                    fsm.goto(bid._satus);
+                fsm.data.nextActions = fsm.transitions();
+                fsm.data.nextStatus = fsm.nextStatus();
                 return Promise.resolve(fsm);
+            }, (error) => {
+                return Promise.reject(err);
             }
-        }).exec();
+        );
     } else {
         data._satus = BidStatus.keys[BidStatus.unreview];
         return BidModel.create(data).then(function(bid) {
@@ -74,7 +77,7 @@ module.exports.Instance = function(data) {
                 return Promise.reject(err);                    
             }
             else {
-                let fsm = new BidFSM(data);
+                let fsm = new BidFSM(bid.$toObject());
                 fsm.data.nextActions = fsm.transitions();
                 fsm.data.nextStatus = fsm.nextStatus();
                 return Promise.resolve(fsm);

@@ -15,7 +15,7 @@ var UserSchema = new mongoose.Schema({
 
     role: {
         type: String,
-        enum: Role.all,
+        enum: ['treasurer', 'saler', 'engineer', 'manager', 'admin', 'salerassistant']
     },
 
     frozen: {
